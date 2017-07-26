@@ -13,7 +13,7 @@ categories: jekyll update
 **准备工作**     
 1.centos6 虚拟机(安装过程不表，有空再补)   
 2.mysql 5.7.16 二进制tar包   
-下载地址:[https://downloads.mysql.com/archives/community/](https://downloads.mysql.com/archives/community/)   
+下载地址:[https://downloads.mysql.com/archives/community/][1]   
    wget [https://cdn.mysql.com/archives/mysql-5.7/mysql-5.7.16-linux-glibc2.5-x86_64.tar.gz](https://cdn.mysql.com/archives/mysql-5.7/mysql-5.7.16-linux-glibc2.5-x86_64.tar.gz)   
   下载完在 /root   
   选择mysql版本，操作系统以及操作系统位数，如下图:   
@@ -239,3 +239,5 @@ chkconfig --list  |grep mysql 检查是否设置成功
    
 结语：   
 mysql数据库配置文件中包含了大量内容，计划写一个系列，加油
+
+[1]: https://downloads.mysql.com/archives/community/
