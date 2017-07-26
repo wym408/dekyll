@@ -9,6 +9,7 @@ categories: jekyll update
 安装    
    
 ------------------   
+
    
 **准备工作**     
 1.centos6 虚拟机(安装过程不表，有空再补)   
