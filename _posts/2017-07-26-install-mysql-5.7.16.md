@@ -3,9 +3,8 @@ layout: post
 title:  "mysql 5.7.16 安装"   
 date:   2017-07-26 16:15:49 +0700   
 categories: jekyll update   
----   
-   
-准备工作     
+---      
+准备工作
 配置文件     
 安装    
    
