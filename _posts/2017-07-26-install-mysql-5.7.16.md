@@ -4,15 +4,14 @@ title:  "mysql 5.7.16 安装"
 date:   2017-07-26 16:15:49 +0700
 categories: jekyll update
 ---
-# mysql 5.7.16 安装
 
-准备工作 
-配置文件 
-安装
+准备工作  
+配置文件  
+安装 
 
 ------------------
 
-**准备工作**
+**准备工作**  
 1.centos6 虚拟机(安装过程不表，有空再补)
 2.mysql 5.7.16 二进制tar包
 下载地址:https://downloads.mysql.com/archives/community/
