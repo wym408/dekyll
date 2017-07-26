@@ -13,7 +13,7 @@ categories: jekyll update
 **准备工作**     
 1.centos6 虚拟机(安装过程不表，有空再补)   
 2.mysql 5.7.16 二进制tar包   
-下载地址:https://downloads.mysql.com/archives/community/   
+下载地址:(https://downloads.mysql.com/archives/community/)   
   wget https://cdn.mysql.com/archives/mysql-5.7/mysql-5.7.16-linux-glibc2.5-x86_64.tar.gz   
   下载完在 /root   
   选择mysql版本，操作系统以及操作系统位数，如下图:   
