@@ -13,15 +13,15 @@ categories: jekyll update
 **准备工作**     
 1.centos6 虚拟机(安装过程不表，有空再补)   
 2.mysql 5.7.16 二进制tar包   
-下载地址:(https://downloads.mysql.com/archives/community/)   
-  wget https://cdn.mysql.com/archives/mysql-5.7/mysql-5.7.16-linux-glibc2.5-x86_64.tar.gz   
+下载地址:[https://downloads.mysql.com/archives/community/](https://downloads.mysql.com/archives/community/)   
+   wget [https://cdn.mysql.com/archives/mysql-5.7/mysql-5.7.16-linux-glibc2.5-x86_64.tar.gz](https://cdn.mysql.com/archives/mysql-5.7/mysql-5.7.16-linux-glibc2.5-x86_64.tar.gz)   
   下载完在 /root   
   选择mysql版本，操作系统以及操作系统位数，如下图:   
 ![这里写图片描述](http://img.blog.csdn.net/20170724085348517?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
      
 **配置文件**   
 测试机器配置：2核cpu，2G内存 虚拟机   
-参考姜大神最佳配置：https://github.com/jdaaaaaavid/mysql_best_configuration/blob/master/my.cnf   
+参考姜大神最佳配置:[https://github.com/jdaaaaaavid/mysql_best_configuration/blob/master/my.cnf](https://github.com/jdaaaaaavid/mysql_best_configuration/blob/master/my.cnf)   
    
 vim /etc/my.cnf   
    
