@@ -184,7 +184,7 @@ port=3309
 安装   
 --   
 官方文档   
-https://dev.mysql.com/doc/refman/5.7/en/binary-installation.html   
+[https://dev.mysql.com/doc/refman/5.7/en/binary-installation.html][2]   
    
 1. 增加用户组和用户   
 groupadd mysql   
@@ -241,3 +241,4 @@ chkconfig --list  |grep mysql 检查是否设置成功
 mysql数据库配置文件中包含了大量内容，计划写一个系列，加油
 
 [1]: https://downloads.mysql.com/archives/community/
+[2]: https://dev.mysql.com/doc/refman/5.7/en/binary-installation.html
