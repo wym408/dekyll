@@ -28,22 +28,26 @@ categories: jekyll update
     
 变量详解官方文档:[https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html][1] 
   
-1.connect_timeout    
-{% highlight doc %}The number of seconds that the mysqld server waits for a connect packet before responding with Bad handshake. The default value is 10 seconds.{% endhighlight %}    
+1.connect_timeout 
+{% highlight doc %}
+The number of seconds that the mysqld server waits for a connect packet before responding with Bad handshake. The default value is 10 seconds.
+{% endhighlight %}    
 mysql的基本原理应该是有个监听线程循环接收请求，当有请求来时，创建线程（或者从线程池中取）来处理这个请求。由于mysql连接采用TCP协议，那么之前势必是需要进行TCP三次握手的。TCP三次握手成功之后，客户端会进入阻塞，等待服务端的消息。服务端这个时候会创建一个线程(或者从线程池中取一个线程)来处理请求，主要验证部分包括host和用户名密码验证。host验证我们比较熟悉，因为在用grant命令授权用户的时候是有指定host的。用户名密码认证则是服务端先生成一个随机数发送给客户端，客户端用该随机数和密码进行多次sha1加密后发送给服务端验证。如果通过，整个连接握手过程完成。    
 由此可见，整个连接握手可能会有各种可能出错。所以这个connect_timeout值就是指这个超时时间了。可以简单测试下，运行下面的telnet命令会发现客户端会在10秒后超时返回。   
-{% highlight shell %} telnet 172.16.178.148 3306 {% endhighlight %}    
-{% highlight result %} | 110 | unauthenticated user | 172.16.178.1:50296 | NULL | Connect |   10 | Receiving from client | NULL             | {% endhighlight %}    
+{% highlight shell %}
+telnet 172.16.178.148 3306 
+{% endhighlight %}    
+{% highlight result %}
+| 110 | unauthenticated user | 172.16.178.1:50296 | NULL | Connect |   10 | Receiving from client | NULL             | 
+{% endhighlight %}    
 
   
 2.wait_timeout interactive_timeout  
-wait_timeout:  
-{% highlight doc %}
+wait_timeout:{% highlight doc %}
 The number of seconds the server waits for activity on a noninteractive connection before closing it.  
 On thread startup, the session wait_timeout value is initialized from the global wait_timeout value or from the global interactive_timeout value, depending on the type of client (as defined by the CLIENT_INTERACTIVE connect option to mysql_real_connect())
 {% endhighlight %}
-interactive_timeout:  
-{% highlight shell %} 
+interactive_timeout:{% highlight shell %} 
 The number of seconds the server waits for activity on an interactive connection before closing it. An interactive client is defined as a client that uses the CLIENT_INTERACTIVE option to mysql_real_connect()
 {% endhighlight %}  
 这2个参数都是用于控制sleep线程被杀掉之前的等待时间，进入mysql的时候session级别 wait_timeout 根据client类型被设置为global wait_timeout(nointeractive) or global interactive_timeout(interactive) 值  
@@ -90,7 +94,6 @@ InnoDB rolls back only the last statement on a transaction timeout by default. I
 {% endhighlight %}
 事务因为innodb_lock_wait_timeout超时时，innodb_rollback_on_timeout =on 时回滚整个事务，innodb_rollback_on_timeout=off 只回滚超时的语句，默认值为off  
 测试:  
-数据准备  
 {% highlight test %}
 (root@localhost) [tdb]> show create table a \G;
 *************************** 1. row ***************************
@@ -112,6 +115,65 @@ No query specified
 |  2 |
 |  3 |
 +----+
+innodb_rollback_on_timeout=off
+session1:
+(root@localhost) [tdb]> begin ;
+Query OK, 0 rows affected (0.00 sec)
+
+(root@localhost) [tdb]> select *from a where id=2 for update ;
++----+
+| id |
++----+
+|  2 |
++----+
+session2:
+(root@localhost) [tdb]> begin ;
+Query OK, 0 rows affected (0.00 sec)
+
+(root@localhost) [tdb]> delete from a where id=1 ;
+Query OK, 1 row affected (0.01 sec)
+
+(root@localhost) [tdb]> delete from a where id=2 ;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+(root@localhost) [tdb]> select * from a ;
++----+
+| id |
++----+
+|  2 |
+|  3 |
++----+
+可以看到超时后1还是看不见的，没有回滚
+
+修改 innodb_rollback_on_timeout =on 重启数据库(innodb_rollback_on_timeout 不可以动态修改)
+session1:
+(root@localhost) [tdb]> begin ;
+Query OK, 0 rows affected (0.00 sec)
+
+(root@localhost) [tdb]> select *from a where id=2 for update ;
++----+
+| id |
++----+
+|  2 |
++----+
+
+session2:
+(root@localhost) [tdb]> begin ;
+Query OK, 0 rows affected (0.00 sec)
+
+(root@localhost) [tdb]> delete from a where id=1 ;
+Query OK, 1 row affected (0.00 sec)
+
+(root@localhost) [tdb]> delete from a where id=2 ;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+(root@localhost) [tdb]> select * from a ;
++----+
+| id |
++----+
+|  1 |
+|  2 |
+|  3 |
++----+
+可以看到1是可见的，说明被回滚了
 {% endhighlight %}
 [1]: https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html
 
