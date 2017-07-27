@@ -38,10 +38,14 @@ mysql的基本原理应该是有个监听线程循环接收请求，当有请求
   
 2.wait_timeout interactive_timeout  
 wait_timeout:  
-{% highlight %}The number of seconds the server waits for activity on a noninteractive connection before closing it.  
-On thread startup, the session wait_timeout value is initialized from the global wait_timeout value or from the global interactive_timeout value, depending on the type of client (as defined by the CLIENT_INTERACTIVE connect option to mysql_real_connect()){% endhighlight %}    
+{% highlight %}
+The number of seconds the server waits for activity on a noninteractive connection before closing it.  
+On thread startup, the session wait_timeout value is initialized from the global wait_timeout value or from the global interactive_timeout value, depending on the type of client (as defined by the CLIENT_INTERACTIVE connect option to mysql_real_connect())
+{% endhighlight %}
 interactive_timeout:  
-{% highlight shell %} The number of seconds the server waits for activity on an interactive connection before closing it. An interactive client is defined as a client that uses the CLIENT_INTERACTIVE option to mysql_real_connect(){% endhighlight %}  
+{% highlight shell %} 
+The number of seconds the server waits for activity on an interactive connection before closing it. An interactive client is defined as a client that uses the CLIENT_INTERACTIVE option to mysql_real_connect()
+{% endhighlight %}  
 这2个参数都是用于控制sleep线程被杀掉之前的等待时间，进入mysql的时候session级别 wait_timeout 根据client类型被设置为global wait_timeout(nointeractive) or global interactive_timeout(interactive) 值  
 测试如下：  
 {% highlight %} set global interactive_timeout=3; ##设置交互超时为3秒{% endhighlight %}  
@@ -75,7 +79,4 @@ Connection id:    115
 {% endhighlight %}  
 
 [1]: https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html
-
-
-
 
