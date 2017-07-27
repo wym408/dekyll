@@ -6,6 +6,7 @@ categories: jekyll update
 ---
 登录mysql,执行 show variables like '%timeout%' ; 不看不知道，一看吓一跳，有13个timeout相关变量，学习整理下        
       
+     
 +-----------------------------+----------+      
 | Variable_name               | Value    |     
 +-----------------------------+----------+     
