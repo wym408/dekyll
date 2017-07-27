@@ -78,5 +78,40 @@ No connection. Trying to reconnect...
 Connection id:    115  
 {% endhighlight %}  
 
+3.innodb_lock_wait_timeout innodb_rollback_on_timeout  
+innodb_lock_wait_timeout:  
+{% highlight doc %}
+The length of time in seconds an InnoDB transaction waits for a row lock before giving up  
+{% endhighlight %}
+innodb等待事务行锁的时间，默认50s  
+innodb_rollback_on_timeout:
+{% highlight doc %}
+InnoDB rolls back only the last statement on a transaction timeout by default. If --innodb_rollback_on_timeout is specified, a transaction timeout causes InnoDB to abort and roll back the entire transaction.  
+{% endhighlight %}
+事务因为innodb_lock_wait_timeout超时时，innodb_rollback_on_timeout =on 时回滚整个事务，innodb_rollback_on_timeout=off 只回滚超时的语句，默认值为off  
+测试:  
+数据准备  
+{% highlight test %}
+(root@localhost) [tdb]> show create table a \G;
+*************************** 1. row ***************************
+       Table: a
+Create Table: CREATE TABLE `a` (
+  `id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+1 row in set (0.00 sec)
+
+ERROR: 
+No query specified
+
+(root@localhost) [tdb]> select * from a ;
++----+
+| id |
++----+
+|  1 |
+|  2 |
+|  3 |
++----+
+{% endhighlight %}
 [1]: https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html
 
