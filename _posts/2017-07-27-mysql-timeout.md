@@ -35,6 +35,7 @@ mysql的基本原理应该是有个监听线程循环接收请求，当有请求
 {% highlight shell %} telnet 172.16.178.148 3306 {% endhighlight %}    
 {% highlight result %} | 110 | unauthenticated user | 172.16.178.1:50296 | NULL | Connect |   10 | Receiving from client | NULL             | {% endhighlight %}    
 
+  
 2.wait_timeout interactive_timeout  
 wait_timeout:  
 {% highlight %}The number of seconds the server waits for activity on a noninteractive connection before closing it.  
