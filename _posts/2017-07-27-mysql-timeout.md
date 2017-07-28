@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "mysql timeout 相关变量详解"
-date:   2016-07-27 16:15:49 +0700
+date:   2017-07-27 16:15:49 +0700
 categories: jekyll update
 ---
 登录mysql,执行 show global variables like '%timeout%' ; 不看不知道，一看吓一跳，有13个timeout相关变量，学习整理下          
@@ -42,7 +42,7 @@ telnet 172.16.178.148 3306
 {% endhighlight %}    
 
   
-2.wait_timeout interactive_timeout  
+2.wait_timeout & interactive_timeout  
 wait_timeout:{% highlight doc %}
 The number of seconds the server waits for activity on a noninteractive connection before closing it.  
 On thread startup, the session wait_timeout value is initialized from the global wait_timeout value or from the global interactive_timeout value, depending on the type of client (as defined by the CLIENT_INTERACTIVE connect option to mysql_real_connect())
@@ -82,7 +82,7 @@ No connection. Trying to reconnect...
 Connection id:    115  
 {% endhighlight %}  
 
-3.innodb_lock_wait_timeout innodb_rollback_on_timeout  
+3.innodb_lock_wait_timeout & innodb_rollback_on_timeout  
 innodb_lock_wait_timeout:  
 {% highlight doc %}
 The length of time in seconds an InnoDB transaction waits for a row lock before giving up  
@@ -175,5 +175,46 @@ ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
 +----+
 可以看到1是可见的，说明被回滚了
 {% endhighlight %}
-[1]: https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html
 
+4.lock_wait_timeout
+{% highlight doc %}
+This variable specifies the timeout in seconds for attempts to acquire metadata locks. 
+{% endhighlight %}
+获取元数据锁的timeout，mysql在5.5引入元数据锁，举个比较常见的情况直接了解下元数据锁
+{% highlight test %}
+session1:
+(root@localhost) [tdb]> begin;
+Query OK, 0 rows affected (0.00 sec)
+
+(root@localhost) [tdb]> update a set id=2 where  id=1 ;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+不要commit or rollback 
+
+session2:
+(root@localhost) [tdb]> drop table a ;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+
+session1 中开始一个事务，操作表时获得相应的元数据锁
+session2 中drop table，要操作元数据，只能等待session1中释放锁或者timeout
+{% endhighlight %}
+这里是一篇元数据锁的介绍：[http://www.cnblogs.com/zengkefu/p/5690385.html][2]
+
+5.net_read_timeout & net_write_timeout
+{% highlight doc %}
+The number of seconds to wait for more data from a connection before aborting the read. When the server is reading from the client, net_read_timeout is the timeout value controlling when to abort. When the server is writing to the client, net_write_timeout is the timeout value controlling when to abort
+{% endhighlight %}
+文档中描述，从连接中获取更多数据的等待时间为net_read_timeout，写数据给连接的等待时间是net_write_timeout，比较好理解，网络不好时发挥的作用比较大
+
+6.slave_net_timeout
+{% highlight doc %}
+The number of seconds to wait for more data from a master/slave connection before aborting the read. Setting this variable has no immediate effect. The state of the variable applies on all subsequent START SLAVE commands.
+{% endhighlight %}
+主从复制的时候， 当Master和Slave之间的网络中断，但是Master和Slave无法察觉的情况下（比如防火墙或者路由问题）。Slave会等待slave_net_timeout设置的秒数后，才能认为网络出现故障，然后才会重连并且追赶这段时间主库的数据。
+[http://blog.csdn.net/lwei_998/article/details/46864453][3]
+
+
+[1]: https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html
+[2]: http://www.cnblogs.com/zengkefu/p/5690385.html
+[3]: http://blog.csdn.net/lwei_998/article/details/46864453
