@@ -22,4 +22,3 @@ innodb_flush_log_at_trx_commit=2， 事务commit时，把log buffer 刷新到os 
 上面提到的1s，即innodb_flush_log_at_timeout的默认值，可用此参数修改.  
 为了数据的安全性，innodb_flush_log_at_trx_commit使用默认值，则innodb_flush_log_at_timeout就没有意义了.
 
-
