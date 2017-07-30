@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "mysql timeout 相关变量详解"
+title:  "mysql 参数 timeout"
 date:   2017-07-27 16:15:49 +0700
 categories: jekyll update
 ---

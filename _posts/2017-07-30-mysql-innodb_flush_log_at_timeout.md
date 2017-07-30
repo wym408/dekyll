@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "mysql innodb_flush_log_at_timeout & innodb_flush_log_at_trx_commit"
+title:  "mysql 参数 innodb_flush_log_at_timeout & innodb_flush_log_at_trx_commit"
 date:   2017-07-27 16:15:49 +0700
 categories: jekyll update
 ---
