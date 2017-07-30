@@ -25,8 +25,3 @@ redo log file 落盘就能保证innodb 事务的安全性,redo log file 顺序�
 
 data file 在磁盘上比较分散，在执行事务完成时，不用及时刷新到磁盘（异步io，及时落盘的代价是很大的，大事务commit等待结果可能就很久很久了），因为redo log 已经落盘，数据安全性已经有了保证，data file 用后台异步线程慢慢刷新到磁盘就ok，data file 在 buffer pool里面已经缓存了一次，如果再用os buffer 再缓存一次，浪费比较大，所以类unix系统都建议使用O_DIRECT模式.  
 
-
-
-
-
-
