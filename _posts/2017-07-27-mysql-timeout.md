@@ -214,7 +214,11 @@ The number of seconds to wait for more data from a master/slave connection befor
 主从复制的时候， 当Master和Slave之间的网络中断，但是Master和Slave无法察觉的情况下（比如防火墙或者路由问题）。Slave会等待slave_net_timeout设置的秒数后，才能认为网络出现故障，然后才会重连并且追赶这段时间主库的数据。
 [http://blog.csdn.net/lwei_998/article/details/46864453][3]
 
+7.innodb_flush_log_at_timeout 
+redo log 的刷新时间，并不是名字上看上去的timeout时间，这个参数本身不重要，比较重要的是与之相关的 innodb_flush_log_at_trx_commit，单独开一片  
+[https://wym408.github.io/jekyll/update/mysql-innodb_flush_log_at_timeout][4]
 
 [1]: https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html
 [2]: http://www.cnblogs.com/zengkefu/p/5690385.html
 [3]: http://blog.csdn.net/lwei_998/article/details/46864453
+[4]: https://wym408.github.io/jekyll/update/mysql-innodb_flush_log_at_timeout
