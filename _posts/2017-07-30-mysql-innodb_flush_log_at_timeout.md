@@ -10,7 +10,7 @@ mysql innodb redo log 刷新到disk的方式
 innodb的redo log 先写入log buffer，然后再存入disk,  
 其中存入disk有2种方式，以是否使用os buffer为不同，由innodb_flush_method参赛控制，在类nuix系统上一般都是用innodb_flush_method=O_DIRECT，也就是使用os buffer.
 
-使用os buffer刷新redo log，又分为3中情况，用innodb_flush_log_at_trx_commit参赛控制，值分别为0,1,2  
+使用os buffer刷新redo log，又分为3中情况，用innodb_flush_log_at_trx_commit参数控制，值分别为0,1,2  
 innodb_flush_log_at_trx_commit=1是默认值，即事务commit时，都把log buffer 刷新到os buffer，并且从os buffer中刷新到disk上.
  
 innodb_flush_log_at_trx_commit=0，每隔1s把log buffer中的数据刷新到os buffer，并请从os buffer中刷新到disk上，也就是1s以内commit完的数据还在log buffer上，如果mysqld或者操作系统crash，则最多可能丢失1s的数据.
