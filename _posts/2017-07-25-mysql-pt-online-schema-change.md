@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "mysql 5.7.16 安装"
+title:  "pt-online-schema-change 过程详解"
 date:   2017-07-26 16:15:49 +0700
 categories: jekyll update
 ---
@@ -52,7 +52,7 @@ pt-online-schema-change  -uroot -p123456 -h172.16.178.148    --chunk-size 20000 
 ![这里写图片描述](http://img.blog.csdn.net/20170725093758562?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 ![这里写图片描述](http://img.blog.csdn.net/20170725093822993?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
-账号连接进去后设置session基本的timeout和sql_mode,暂时没有看出有何影响，然后获取表的相应，应该是检查主键，触发器和是否有外键，最后到执行阶段：
+账号连接进去后设置session基本的timeout和sql_mode,暂时没有看出有何影响，然后获取表的相应信息，应该是检查主键，触发器和是否有外键，最后到执行阶段：
 
 创建新表：
 CREATE TABLE `tdb`.`_e_new`

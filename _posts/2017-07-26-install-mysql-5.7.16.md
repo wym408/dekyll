@@ -25,7 +25,7 @@ categories: jekyll update
 参考姜大神最佳配置:[https://github.com/jdaaaaaavid/mysql_best_configuration/blob/master/my.cnf](https://github.com/jdaaaaaavid/mysql_best_configuration/blob/master/my.cnf)   
    
 vim /etc/my.cnf   
-   
+{% highlight doc %}   
 [mysqld]   
 datadir=/home/data/mysqldata #数据文件目录   
 user=mysql                   #server端启动用户   
@@ -181,36 +181,49 @@ plugin_dir=/usr/local/mysql56/lib/plugin
 datadir=/home/data/mysqldata56   
 socket=/tmp/mysql.sock56   
 port=3309   
-   
+{% endhighlight %}
+
 安装   
 --   
 官方文档   
 [https://dev.mysql.com/doc/refman/5.7/en/binary-installation.html][2]   
    
-1. 增加用户组和用户   
+1. 增加用户组和用户
+{% highlight doc %}   
 groupadd mysql   
 useradd -r -g mysql -s /bin/false mysql   
-2. 解压tar包，新建软连接   
+{% endhighlight %}
+2. 解压tar包，新建软连接  
+{% highlight doc %} 
 cd /usr/local   
 tar zxvf /root/mysql-5.7.16-linux-glibc2.5-x86_64.tar.gz    
 ln -s /usr/local/mysql-5.7.16-linux-glibc2.5-x86_64 mysql   
-3. 创建mysql数据目录(配置文件中datadir)   
+{% endhighlight %}
+3. 创建mysql数据目录(配置文件中datadir)
+{% highlight doc %}   
 cd mysql   
 mkdir -p /home/data/mysqldata    
 chmod 750  /home/data/mysqldata    
-chown -R mysql:mysql  /home/data/mysqldata    
+chown -R mysql:mysql  /home/data/mysqldata 
+{% endhighlight %}   
 ![这里写图片描述](http://img.blog.csdn.net/20170724133605494?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
 4. 修改mysql文件夹下文件所有者   
-chown -R mysql:mysql .   
+{% highlight doc %}
+chown -R mysql:mysql .
+{% endhighlight %}   
 ![这里写图片描述](http://img.blog.csdn.net/20170724133853767?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
 5. 初始化数据库(5.7.6 以及后续版本与5.7.5 以及前版本不同，详细见官方文档)   
+{% highlight doc %}
 bin/mysqld --initialize --user=mysql   
-bin/mysql_ssl_rsa_setup    
+bin/mysql_ssl_rsa_setup
+{% endhighlight %}    
 ![这里写图片描述](http://img.blog.csdn.net/20170724134252915?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
 初始化完成后,mysql给root用户生成了一个临时密码，在error.log(/etc/my.cnf中  log_error = error.log) 中，可以 cat error.log | grep password 查看    
 ![这里写图片描述](http://img.blog.csdn.net/20170724134919094?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
 6. 启动数据库   
-bin/mysqld_safe --user=mysql &   
+{% highlight doc %}
+bin/mysqld_safe --user=mysql & 
+{% endhighlight %}  
 启动完成后可用 ps -ef | grep mysql 命令查看   
 有2个线程,mysqld_safe 和 mysqld，如果没有请移步  error.log 查看   
 ![这里写图片描述](http://img.blog.csdn.net/20170724135329988?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
@@ -224,17 +237,20 @@ show databases ;  没有test库，test库有安全隐患被移除了(任何用�
 到此数据库已经安装完成,可以开始正常的工作了   
 ![这里写图片描述](http://img.blog.csdn.net/20170724141707912?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
 9.配置环境变量和增加开机启动，方便使用和管理   
+{% highlight doc %}
 vim /etc/profile  增加环境变量   
 export PATH=/usr/local/mysql/bin:$PATH   
-source /etc/profile 生效环境变量   
+source /etc/profile 生效环境变量  
+{% endhighlight %} 
 调用 /usr/local/mysql/bin 目录下可执行文件不用先cd到此目录下，可以直接使用   
 ![这里写图片描述](http://img.blog.csdn.net/20170724142319760?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
    
 cp support-files/mysql.server /etc/init.d/mysqld  增加服务   
 service mysqld start|stop|restart   
 ![这里写图片描述](http://img.blog.csdn.net/20170724143117248?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
-   
-chkconfig --add mysqld 开机启动   
+{% highlight doc %}   
+chkconfig --add mysqld 开机启动  
+{% endhighlight %} 
 chkconfig --list  |grep mysql 检查是否设置成功   
 ![这里写图片描述](http://img.blog.csdn.net/20170724143438942?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd3ltNDA4/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)   
    
