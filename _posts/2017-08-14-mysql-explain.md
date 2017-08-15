@@ -48,13 +48,13 @@ simple：表示不需要union操作或者不包含子查询的简单select查询
 |  1 | SIMPLE      | b     | NULL       | eq_ref | PRIMARY       | PRIMARY | 4       | tdb.a.id |    1 |   100.00 | NULL  |
 +----+-------------+-------+------------+--------+---------------+---------+---------+----------+------+----------+-------+
 {% endhighlight %}
-primary：一个需要union操作或者含有子查询的select，位于最外层的单位查询的select_type即为primary。且只有一个
-union：union连接的两个select查询，第一个查询select_type是PRIMARY，除了第一个表外，第二个以后的表select_type都是union
-dependent union：与union一样，出现在union 或union all语句中，但是这个查询要受到外部查询的影响
-union result：包含union的结果集，在union和union all语句中,因为它不需要参与查询，所以id字段为null
-subquery：除了from字句中包含的子查询外，其他地方出现的子查询都可能是subquery
-dependent subquery：与dependent union类似，表示这个subquery的查询要受到外部表查询的影响
-derived：from字句中出现的子查询，也叫做派生表，其他数据库中可能叫做内联视图或嵌套select 这个没测出啥情况会出现。。。
+primary：一个需要union操作或者含有子查询的select，位于最外层的单位查询的select_type即为primary.且只有一个.  
+union：union连接的两个select查询，第一个查询select_type是PRIMARY，除了第一个表外，第二个以后的表select_type都是union.  
+dependent union：与union一样，出现在union 或union all语句中，但是这个查询要受到外部查询的影响.  
+union result：包含union的结果集，在union和union all语句中,因为它不需要参与查询，所以id字段为null.  
+subquery：除了from字句中包含的子查询外，其他地方出现的子查询都可能是subquery.  
+dependent subquery：与dependent union类似，表示这个subquery的查询要受到外部表查询的影响.  
+derived：from字句中出现的子查询，也叫做派生表，其他数据库中可能叫做内联视图或嵌套select 这个没测出啥情况会出现。。。  
 {% highlight doc %}
 (root@localhost) [tdb]> explain  select * from t1 where a=123 union  select * from t1 b where a=234 union all select * from t1 c where a=456 ;
 +----+--------------+--------------+------------+------+---------------+------+---------+-------+------+----------+-----------------+
