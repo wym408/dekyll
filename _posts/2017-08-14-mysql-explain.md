@@ -30,7 +30,7 @@ id列数字越大越先执行，如果说数字一样大，那么就从上往下
 +----+--------------+--------------+------------+------+---------------+------+---------+-------+------+----------+-----------------+
 {% endhighlight %}
 
-2.select_type:
+2.select_type:  
 simple：表示不需要union操作或者不包含子查询的简单select查询。单表查询为simple,有连接查询时，外层的查询为simple
 {% highlight doc %}
 (root@localhost) [tdb]> explain select * from t1 where a=123 ;
