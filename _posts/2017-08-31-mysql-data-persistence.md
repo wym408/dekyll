@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "mysql explain 执行计划"
+title:  "mysql 数据落盘整理"
 date:   2017-08-14 16:15:49 +0700
 categories: jekyll update
 ---
-本文记录mysql数据持久化
+本文记录mysql数据落盘
 
 Redo_Log:    
 WAL(write_ahead_redo_log)保证了innodb数据的持久性   
