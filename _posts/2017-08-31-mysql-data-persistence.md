@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "mysql 数据落盘整理"
-date:   2017-08-14 16:15:49 +0700
+date:   2017-08-30 16:15:49 +0700
 categories: jekyll update
 ---
 本文记录mysql数据落盘
