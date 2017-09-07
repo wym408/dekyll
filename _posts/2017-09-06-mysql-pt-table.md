@@ -102,7 +102,7 @@ CREATE DATABASE IF NOT EXISTS `percona`
 CREATE TABLE IF NOT EXISTS `percona`.`checksums`： 创建校验值存放的库和表  
 DELETE FROM `percona`.`checksums` WHERE db = 'tdb' AND tbl = 'b' ： 把以前跑的结果删除  
 EXPLAIN ：期中很多的explain用来分析选取适当大小的chunk块，测试中数据量比较小，无法看出chunk的左右  
- REPLACE INTO `percona`.`checksums` (db, tbl, chunk, chunk_index, lower_boundary, upper_boundary, this_cnt, this_crc) SELECT 'tdb', 'b', '1', NULL, NULL, NULL, COUNT(*) AS cnt, COALESCE(LOWER(CONV(BIT_XOR(CAST(CRC32(CONCAT_WS('#', `id`, `v`, CONCAT(ISNULL(`v`)))) AS UNSIGNED)), 10, 16)), 0) AS crc FROM `tdb`.`b` /*checksum table*/ ： 这句是核心语句，计算选取出的chunk块中数据的校验值， session 级别binlog 是STATEMENT，同样的语句会在从机上执行一次，如果数据一致，得到的校验值也一致，该工具就是利用这个值来判断主从的数据是否一致  
+REPLACE INTO `percona`.`checksums` (db, tbl, chunk, chunk_index, lower_boundary, upper_boundary, this_cnt, this_crc) SELECT 'tdb', 'b', '1', NULL, NULL, NULL, COUNT(*) AS cnt, COALESCE(LOWER(CONV(BIT_XOR(CAST(CRC32(CONCAT_WS('#', `id`, `v`, CONCAT(ISNULL(`v`)))) AS UNSIGNED)), 10, 16)), 0) AS crc FROM `tdb`.`b` /*checksum table*/ ： 这句是核心语句，计算选取出的chunk块中数据的校验值， session 级别binlog 是STATEMENT，同样的语句会在从机上执行一次，如果数据一致，得到的校验值也一致，该工具就是利用这个值来判断主从的数据是否一致  
 UPDATE `percona`.`checksums` SET chunk_time = '0.000746', master_crc = 'd925b6b4', master_cnt = '12' WHERE db = 'tdb' AND tbl = 'b' AND chunk = '1'：master_crc，master_cnt 更新值，通过binlog传送给从机  
 
 从机general.log  
@@ -178,7 +178,6 @@ DELETE FROM `percona`.`checksums` WHERE db = 'tdb' AND tbl = 'b'
 REPLACE INTO `percona`.`checksums` (db, tbl, chunk, chunk_index, lower_boundary, upper_boundary, this_cnt, this_crc) SELECT 'tdb', 'b', '1', NULL, NULL, NULL, COUNT(*) AS cnt, COALESCE(LOWER(CONV(BIT_XOR(CAST(CRC32(CONCAT_WS('#', `id`, `v`, CONCAT(ISNULL(`v`)))) AS UNSIGNED)), 10, 16)), 0) AS crc FROM `tdb`.`b` /*checksum table*/ ：这句也是binlog传送过来的，验证主从数据一致性的核心语句  
 SELECT CONCAT(db, '.', tbl) AS `table`, chunk, chunk_index, lower_boundary, upper_boundary, COALESCE(this_cnt-master_cnt, 0) AS cnt_diff, COALESCE(this_crc <> master_crc OR ISNULL(master_crc) <> ISNULL(this_crc), 0) AS crc_diff, this_cnt, master_cnt, this_crc, master_crc FROM `percona`.`checksums` WHERE (master_cnt <> this_cnt OR master_crc <> this_crc OR ISNULL(master_crc) <> ISNULL(this_crc))  AND (db='tdb' AND tbl='b') ： 期中master_crc是通过binlog传送过来的主机值，this_crc是从机上用replace into select from 计算出来的，两值不等表明主从数据不一致  
 
-
 从上面的分析大概能看出，pt-table-checksum一次只针对一个表，而且会根据表的大小以及当前系统的繁忙程度，计算出一次检查中能包含的数据行数，来尽量避免对线上服务的影响，如果在执行过程中遇到突发的负载增加，还会自动的将检查停下来等待，所以即使面对成千上万的数据库和表时，它也能顺利的进行检查  
 
 在检查过程中，工具会随时对主从连接情况进行检查，如果从库延迟太大，主从复制中断，检查会停下来等待；这里需要注意的是主从复制过滤，因为这种情形下，主从数据库中的库表存在情况不一致，检查过程中的执行语句会与当前的主从复制过程冲突导致主从复制进程失败，所以如果有过滤存在，需要指定参数--no-check-replication-filters  
@@ -189,6 +188,60 @@ SELECT CONCAT(db, '.', tbl) AS `table`, chunk, chunk_index, lower_boundary, uppe
 
 在执行过程中如果遇到任何异常，可随时中断进程，如kill或CTRL-C，不会造成任何影响，后面想从此次中断继续检查时，简单的采用--resume就可以  
 
+在从机上删除1行数据
+{% highlight doc %}
+delete from b where id=1 ;  
 
+[root@localhost ~]# pt-table-checksum -uroot -p123456 -h172.16.178.152  -P3306 --no-check-binlog-format  --no-check-replication-filters --databases=tdb --tables=b 
+            TS ERRORS  DIFFS     ROWS  CHUNKS SKIPPED    TIME TABLE
+09-07T09:52:29      0      1       12       1       0   0.275 tdb.b
+{% endhighlight %}
+TS ：完成检查的时间戳。  
+ERRORS ：检查时候发生错误和警告的数量。  
+DIFFS ：不一致的chunk数量。  
+ROWS ：比对的表行数。  
+CHUNKS ：被划分到表中的块的数目。  
+SKIPPED ：由于错误或警告或过大，则跳过块的数目。  
+TIME ：执行的时间。  
+TABLE ：被检查的表名。  
 
+DIFFS =1 ，说明数据不一致
+
+修复数据：  
+{% highlight doc %}
+ pt-table-sync  --replicate=percona.checksums  --databases=tdb --tables=a h=172.16.178.152,u=root,p=123456 h=172.16.178.153,u=root,p=123456 --print    
+REPLACE INTO `tdb`.`a`(`id`, `v`) VALUES ('1', 'a') /*percona-toolkit src_db:tdb src_tbl:a src_dsn:h=172.16.178.152,p=...,u=root dst_db:tdb dst_tbl:a dst_dsn:h=172.16.178.153,p=...,u=root lock:1 transaction:1 changing_src:percona.checksums replicate:percona.checksums bidirectional:0 pid:374 user:root host:localhost.localdomain*/;
+{% endhighlight %}
+pt-table-sync 工具   
+--replicate=percona.checksums：之前产生的不一致信息  
+--databases=tdb --tables=a： 需要修复的库和表  
+h=172.16.178.152,u=root,p=123456： 前面一个是主库信息  
+h=172.16.178.153,u=root,p=123456： 后面一个是从库信息，也可以省略  
+--print：展示修复sql，不执行  
+--execute: 直接修复  
+
+主机general.log  
+{% highlight doc %}
+ SELECT /*rows in chunk*/ `id`, `v`, CRC32(CONCAT_WS('#', `id`, `v`, CONCAT(ISNULL(`v`)))) AS __crc FROM `tdb`.`a` FORCE INDEX (`PRIMARY`) WHERE (`id` >= '1') AND (((`id` >= '1')) AND ((`id` <= '3340'))) ORDER BY `id` FOR UPDATE
+{% endhighlight %}
+从库general.log  
+{% highlight doc %}
+  SELECT db, tbl, CONCAT(db, '.', tbl) AS `table`, chunk, chunk_index, lower_boundary, upper_boundary, COALESCE(this_cnt-master_cnt, 0) AS cnt_diff, COALESCE(this_crc <> master_crc OR ISNULL(master_crc) <> ISNULL(this_crc), 0) AS crc_diff, this_cnt, master_cnt, this_crc, master_crc FROM percona.checksums WHERE master_cnt <> this_cnt OR master_crc <> this_crc OR ISNULL(master_crc) <> ISNULL(this_crc)
+
+ SELECT /*rows in chunk*/ `id`, `v`, CRC32(CONCAT_WS('#', `id`, `v`, CONCAT(ISNULL(`v`)))) AS __crc FROM `tdb`.`a` FORCE INDEX (`PRIMARY`) WHERE (`id` >= '1') AND (((`id` >= '1')) AND ((`id` <= '3340'))) ORDER BY `id` LOCK IN SHARE MODE
+{% endhighlight %}
+找到chunk块不一致的数据，然后把期中的所以数据拉出来对比，主从不一致的数据对从库进行修复  
+
+上面只是打印了修复sql，也可以直接修复，修复完再检查 
+
+{% highlight doc %}
+[root@localhost ~]# pt-table-sync  --replicate=percona.checksums  --databases=tdb --tables=a h=172.16.178.152,u=root,p=123456 h=172.16.178.153,u=root,p=123456 --execute  
+
+[root@localhost ~]# pt-table-checksum -uroot -p123456 -h172.16.178.152  -P3306 --no-check-binlog-format  --no-check-replication-filters --databases=tdb --tables=a           
+            TS ERRORS  DIFFS     ROWS  CHUNKS SKIPPED    TIME TABLE
+09-07T11:02:02      0      0  6815744      12       0   6.106 tdb.a
+{% highlight doc %}
+修复完检查 DIFFS=0
+
+ 
 
