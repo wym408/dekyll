@@ -240,7 +240,7 @@ h=172.16.178.153,u=root,p=123456： 后面一个是从库信息，也可以省�
 [root@localhost ~]# pt-table-checksum -uroot -p123456 -h172.16.178.152  -P3306 --no-check-binlog-format  --no-check-replication-filters --databases=tdb --tables=a           
             TS ERRORS  DIFFS     ROWS  CHUNKS SKIPPED    TIME TABLE
 09-07T11:02:02      0      0  6815744      12       0   6.106 tdb.a
-{% highlight doc %}
+{% endhighlight %}
 修复完检查 DIFFS=0
 
  
